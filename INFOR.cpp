@@ -4,17 +4,18 @@
 #define N 5000
 
 // Definimos los Prototipos de las funciones.
-void sustituir_guiones (char lista[]);
-void poner_guiones(char cadena[]);
-int comparar(const char lista1[], const char lista2[]);
-void ImprimirCentros(struct Actividad registros[], int nregistros); 
-void ImprimirDeportes(struct Actividad registros[], int nregistros);
-void SistemaRecomendacion(struct Actividad registros[], int nregistros);
-int SoloLetras(char cadena[]);
-int DNIValido(char dni[]);
+void sustituir_guiones (char lista[]);   // Funcion para sustituir guiones  por espacios en una cadena de caracteres
+void poner_guiones(char cadena[]);		 // Funcion para sustituir espacios por guiones en una cadena de caracteres
+int comparar(const char lista1[], const char lista2[]);		// Funcion para comparar dos cadenas de caracteres. RETURN 1 si son iguales. RETURN 0 si son distintas.
+void ImprimirCentros(struct Actividad registros[], int nregistros); 	// Funcion para imprimir la lista de centros sin que se repitan.
+void ImprimirDeportes(struct Actividad registros[], int nregistros);	// Funcion para imprimir la lista de deportes sin que se repitan.
+void SistemaRecomendacion(struct Actividad registros[], int nregistros);	// Funcion especifica para el caso 12.
+int SoloLetras(char cadena[]);		// Funcion que detecta solo letras, espacios y barras bajas. RETURN 0 si hay solo letras. RETURN 0 si hay caracteres especiales
+int DNIValido(char dni[]);			// Funcion para comprobar que el DNI introducido tenga 8 numero y una letra. RETURN 0 si el DNI esta mal. RETURN 1 si el DNI esta bien. 
 
 // Definimos las estructuras que se van a utilizar
-struct Actividad {
+struct Actividad  // ESTRUCTURA PRINCIPAL . LUGAR DONDE SE ALMACENA LA INFORMACIÃ“N DEL FICHERO
+{
     int anio; 
     int edad; 
     int mes; 
@@ -31,20 +32,23 @@ struct Actividad {
     char tipo_actividad[50];
 };
 
-struct FrecuenciaHora {
+struct FrecuenciaHora  	// ESTRUCTURA AUXILIAR ESPECIFICA PARA EL CASO 8.
+{
 	char hora[15];
 	int cantidad;
 };
 
-int main() {
+int main()  // MAIN. Donde se aloja toda la informacion y estructura del programa
+{
+	// INICIALIZACION DE VARIABLES y del VECTOR DE ESTRUCTURAS
     int opcion = 0;
     struct Actividad registros[N];
     int nregistros = 0;
     int i;
     int encontrado = 0;
-    int login_valido = 0; // Variable para controlar el bucle
+    int login_valido = 0; 
     
-    // Creamos en forma de adorno un inicio de sesion como si de una web se tratara.
+    // INICIO DE SESION / REGISTRO CON USUARIO Y CONTRASEÃ‘A
     char usuario[50];
 	char contrasena[50];
 
@@ -54,7 +58,7 @@ int main() {
     
     printf("INICIO DE SESION\n\n");
     
-    // BUCLE DO WHILE de validacion de las condiciones.
+    // BUCLE DO WHILE de validacion de las condiciones para el nombre y las contraseÃ±as.
     do 
 	{
         printf("Nombre de usuario (Solo letras): ");
@@ -64,7 +68,7 @@ int main() {
         scanf(" %[^\n]", contrasena); // El %[^\n] permite leer frases con espacios
         
 
-        if (SoloLetras(usuario) == 1 && SoloLetras(contrasena) == 1) // Comprobamos con la funcion SoloLetras que la contraseña y el usuario solo tienen letras
+        if (SoloLetras(usuario) == 1 && SoloLetras(contrasena) == 1) // Comprobamos con la funcion SoloLetras que la contraseÃ±a y el usuario no contienen caracteres especiales. 
     	{
             login_valido = 1; // Todo correcto, permitimos salir del bucle
         } else 
@@ -76,28 +80,33 @@ int main() {
         
     } while (login_valido == 0);
 
-    printf("Bienvenido/a %s.\n", usuario);
+	// MENSAJE DE BIENVENIDA AL PROGRAMA
+    printf("Bienvenido/a %s.\n", usuario); 
     printf("Acceso concedido.\n\n");
     
 	// Abrimos y leemos el fichero "deportesayuntamiento.txt" que se encuentra en la misma carpeta que el ejecutable de este mismo archivo.
-    FILE * fentrada;
+    FILE * fentrada; // PUNTERO PARA ABRIR EL ARCHIVO
     fentrada = fopen("deportesayuntamiento.txt", "r");
     if (fentrada == NULL) {
-        printf("Error abriendo el fichero. Comprueba el nombre exacto.\n");
+        printf("Error abriendo el fichero. Comprueba el nombre exacto.\n"); // Avisamos en caso de que el archivo no haya sido encontrado o haya surgido algun error
         return 0;
     }
     
     i = 0;
-
+	
+	// BUCLE WHILE PARA LEER EL FICHERO HASTA END OF FILE (EOF).
     while (fscanf(fentrada, "%d %d %d %s %s %s %s %s %s %d %d %d %s", &registros[i].anio, &registros[i].mes, &registros[i].dia, registros[i].dia_semana, registros[i].hora_inicio, registros[i].hora_fin, registros[i].actividad_base, registros[i].modalidad, registros[i].centro, &registros[i].plazas, &registros[i].ocupadas, &registros[i].libres, registros[i].tipo_actividad) != EOF) 
 	{
         i++;
         nregistros++;
     }
-    fclose(fentrada);
-	system("cls");// Util para limpiar la consola y que no aparezca todo el rato el inicio de sesion con los datos del usuario
-    do {
+    fclose(fentrada);// Cerramos el archivo de la misma manera que lo hemos abierto.
+	system("cls");// Util para limpiar la consola y que no aparezca todo el rato el inicio de sesion con los datos del usuario.
+    
+	// BUCLE DO WHILE PRINCIPAL PARA EL MENU DE OPCIONES. SI SE PULSA LA OPCION 15 SE SALE DEL PROGRAMA
+	do {
     	 
+    	// MOSTRAMOS AL USUARIO EL MENU DE OPCIONES 
 		printf("Bienvenido/a %s.\n", usuario);
 		printf("Acceso concedido.\n\n");
         printf("\n ************************************************ ");
@@ -155,14 +164,11 @@ int main() {
             case 2:
 				
 				ImprimirCentros(registros, nregistros); // Hacemos llamamiento de la funcion
-				
 				break;
 			
 			case 3:
-				
-				
+			
 				ImprimirDeportes(registros, nregistros); // Hacemos llamamiento de la funcion de igual manera que la anterior.
-				
 				break;
 			
 			case 4:
@@ -202,7 +208,6 @@ int main() {
            			 	printf("%-30s | %-45s | %-02s-%-02s | %-02d plazas\n", var_temp1, var_temp2, registros[i].hora_inicio, registros[i].hora_fin, registros[i].plazas);
         				}
    					}
-
     			break;	
 			
 			case 6:
@@ -225,124 +230,133 @@ int main() {
 						
 						encontrado = 1;
 					}
-					
 				}
 				
 				if (encontrado ==0)
 				{
 					printf("Vaya, parece que los centros estan bastante ocupados .\n");
-				
 				}
 				
 				printf("El porcentaje de la derecha indica la ocupacion del centro correspondiente (valores como 0% indican que no hay nadie registrado aun).\n");
-			
 				break;
 			
 			
 			case 7:
             {
-            	int i, j, k;
-			
-			    char centros[200][100];
-			    int total_ocupadas[200];
-			    int num_centros = 0;
-			
-			    for(i = 0; i < nregistros; i++)
-			    {
-			        encontrado = 0;
-			
-			        for(j = 0; j < num_centros; j++)
-			        {
-			            if(comparar(registros[i].centro, centros[j]) == 1)
-			            {
-			                total_ocupadas[j] += registros[i].ocupadas;
-			                encontrado = 1;
-			                break;
-			            }
-			        }
-			
-			        if(encontrado == 0)
-			        {
-			            k = 0;
-			
-			            while(registros[i].centro[k] != '\0')
-			            {
-			                centros[num_centros][k] = registros[i].centro[k];
-			                k++;
-			            }
-			
-			            centros[num_centros][k] = '\0';
-			
-			            total_ocupadas[num_centros] = registros[i].ocupadas;
-			
-			            num_centros++;
-			        }
-			    }
-			
-			    for(i = 0; i < num_centros - 1; i++)
-			    {
-			        for(j = i + 1; j < num_centros; j++)
-			        {
-			            if(total_ocupadas[j] > total_ocupadas[i])
-			            {
-			                int aux_ocupadas;
-			                char aux_centro[100];
-			
-			                aux_ocupadas = total_ocupadas[i];
-			                total_ocupadas[i] = total_ocupadas[j];
-			                total_ocupadas[j] = aux_ocupadas;
-			
-			                k = 0;
-			
-			                while(centros[i][k] != '\0')
-			                {
-			                    aux_centro[k] = centros[i][k];
-			                    k++;
-			                }
-			
-			                aux_centro[k] = '\0';
-			
-			                k = 0;
-			
-			                while(centros[j][k] != '\0')
-			                {
-			                    centros[i][k] = centros[j][k];
-			                    k++;
-			                }
-			
-			                centros[i][k] = '\0';
-			
-			                k = 0;
-			
-			                while(aux_centro[k] != '\0')
-			                {
-			                    centros[j][k] = aux_centro[k];
-			                    k++;
-			                }
-			
-			                centros[j][k] = '\0';
-			            }
-			        }
-			    }
-			
-			    printf("\n===== TOP 3 CENTROS MAS DEMANDADOS =====\n\n");
-			
-			    for(i = 0; i < 3 && i < num_centros; i++)
-			    {
-			    	
-			    	char var_temp1[100]; //Definimos variables temporales para no modificar la lista original
-            		strcpy(var_temp1, centros[i]); // Con el comando 'strcpy' copiamos la lista de los centros a la nueva variable temporal
-            		sustituir_guiones(var_temp1); // Sustituimos los guiones en la variable temporal para la lista de centros
-			
-			        printf("%d. %-35s | %d plazas ocupadas\n", i + 1, var_temp1, total_ocupadas[i]);
-			    }
-			
-			    break;
+                int i, j, k;
+            
+                // arrays para ir guardando los centros sin repetir y sus plazas
+                char centros[200][100];
+                int total_ocupadas[200];
+                int num_centros = 0;
+            
+                // recorremos todos los registros
+                for(i = 0; i < nregistros; i++)
+                {
+                    encontrado = 0;
+            
+                    // buscamos si el centro ya lo habiamos metido en la lista
+                    for(j = 0; j < num_centros; j++)
+                    {
+                        if(comparar(registros[i].centro, centros[j]) == 1)
+                        {
+                            // si ya esta, solo sumamos las plazas y activamos el flag
+                            total_ocupadas[j] += registros[i].ocupadas;
+                            encontrado = 1;
+                            break;
+                        }
+                    }
+            
+                    // si no lo teniamos, lo metemos como uno nuevo
+                    if(encontrado == 0)
+                    {
+                        k = 0;
+            
+                        // copiamos el nombre a pelo (caracter a caracter)
+                        while(registros[i].centro[k] != '\0')
+                        {
+                            centros[num_centros][k] = registros[i].centro[k];
+                            k++;
+                        }
+            
+                        centros[num_centros][k] = '\0'; // importante cerrar el string
+            
+                        total_ocupadas[num_centros] = registros[i].ocupadas;
+            
+                        num_centros++;
+                    }
+                }
+            
+                // ordenamos de mayor a menor demanda (tipico metodo burbuja)
+                for(i = 0; i < num_centros - 1; i++)
+                {
+                    for(j = i + 1; j < num_centros; j++)
+                    {
+                        if(total_ocupadas[j] > total_ocupadas[i])
+                        {
+                            // variables temporales para hacer el swap
+                            int aux_ocupadas;
+                            char aux_centro[100];
+            
+                            // intercambiamos los numeros
+                            aux_ocupadas = total_ocupadas[i];
+                            total_ocupadas[i] = total_ocupadas[j];
+                            total_ocupadas[j] = aux_ocupadas;
+            
+                            k = 0;
+            
+                            // intercambiamos los nombres (tambien char a char)
+                            while(centros[i][k] != '\0')
+                            {
+                                aux_centro[k] = centros[i][k];
+                                k++;
+                            }
+            
+                            aux_centro[k] = '\0';
+            
+                            k = 0;
+            
+                            while(centros[j][k] != '\0')
+                            {
+                                centros[i][k] = centros[j][k];
+                                k++;
+                            }
+            
+                            centros[i][k] = '\0';
+            
+                            k = 0;
+            
+                            while(aux_centro[k] != '\0')
+                            {
+                                centros[j][k] = aux_centro[k];
+                                k++;
+                            }
+            
+                            centros[j][k] = '\0';
+                        }
+                    }
+                }
+            
+                printf("\n===== TOP 3 CENTROS MAS DEMANDADOS =====\n\n");
+            
+                // sacamos solo el top 3, o menos si la lista es mas corta
+                for(i = 0; i < 3 && i < num_centros; i++)
+                {
+                    
+                    char var_temp1[100]; // Definimos variables temporales para no modificar la lista original
+                    strcpy(var_temp1, centros[i]); // Con el comando 'strcpy' copiamos la lista de los centros a la nueva variable temporal
+                    sustituir_guiones(var_temp1); // Sustituimos los guiones en la variable temporal para la lista de centros
+            
+                    printf("%d. %-35s | %d plazas ocupadas\n", i + 1, var_temp1, total_ocupadas[i]);
+                }
+            
+                break;
             }
 
 			case 8: 
 			{
-				struct FrecuenciaHora horas[N];
+				// INICIALIZAMOS LAS VARIABLES Y EL VECTOR DE ESTRUCTURAS AUXILIAR
+				struct FrecuenciaHora horas[N]; 
                 int num_horas = 0;
                 int j_idx;
                 
@@ -397,7 +411,7 @@ int main() {
 			
 			case 9:
 			{
-			    FILE * fsalida;
+			    FILE * fsalida; // PUNTERO PARA CREAR UN DOCUMENTO DE TEXTO
 				char nombre_fichero[100];
 				char centro_buscado[100]; // En esta variable se almacenan los nombres de los deportes sin '_'
 				
@@ -409,21 +423,21 @@ int main() {
 				
 				strcpy(nombre_fichero, centro_buscado);
 				
-				fsalida = fopen(strcat(nombre_fichero, ".txt"), "w");
+				fsalida = fopen(strcat(nombre_fichero, ".txt"), "w"); // IMPORTANTE QUE ESTE EN MODO 'w' PARA PODER ESCRIBIR SOBRE EL.
 				
 				if (fsalida == NULL)  // Bucle en caso de que exista algun error creando el archivo
 				{
 					printf("Error al crear el archivo.\n");
 					break; 
 				}
-
+				// DISEÃ‘AMOS EL CONTENIDO DEL ARCHIVO
 				fprintf(fsalida, "====================================================================\n");
 				fprintf(fsalida, "                         INFORME DETALLADO: %s\n", centro_buscado);
 				fprintf(fsalida, "====================================================================\n\n");
 				fprintf(fsalida, "INFORMACION DE LOCALIZACION DEL CENTRO:\n");
 				fprintf(fsalida, "Consulte lineas de EMT y Metro en: www.madrid.es\n\n");
 				fprintf(fsalida, "ACTIVIDADES OFERTADAS:\n\n");
-				fprintf(fsalida, "%-45s | %-10s | %-10s | %-6s\n", "ACTIVIDAD", "INICIO", "FIN", "PLAZAS"); // Los ponemos como variables char para poder contar los espacios y que concuerden con los datos que estarán mas abajo.
+				fprintf(fsalida, "%-45s | %-10s | %-10s | %-6s\n", "ACTIVIDAD", "INICIO", "FIN", "PLAZAS"); // Los ponemos como variables char para poder contar los espacios y que concuerden con los datos que estarÃ¡n mas abajo.
 				fprintf(fsalida, "--------------------------------------------------------------------\n");
 				
 				encontrado = 0; 
@@ -439,7 +453,7 @@ int main() {
 					}
 				}
 				
-				fclose(fsalida);
+				fclose(fsalida); // CERRAMOS EL ARCHIVO
 				
 				if (encontrado == 0) 
 				{
@@ -461,12 +475,15 @@ int main() {
 			    int indice;
 			    int datos_validos = 0;
 			
-			    FILE *fcertificado;
+			
+				// IGUAL QUE EN EL CASO ANTERIOR
+			    FILE *fcertificado; // PUNTERO PARA CREAR EL ARCHIVO
 			
 			    printf("\n*****CERTIFICADO DE INSCRIPCION****\n");
 			
 			    do
 			    {
+			    	// DISEÃ‘AMOS LO QUE QUEREMOS QUE TENGA EL CERTIFICADO
 			        printf("Introduce tu nombre y primer apellido: ");
 			        scanf(" %[^\n]", nombre);
 			
@@ -529,6 +546,8 @@ int main() {
 				sustituir_guiones(registros[indice].centro); // QUITAMOS LOS GUIONES
 				sustituir_guiones(registros[indice].actividad_base);
 			    
+			    
+			    // LO INTRODUCIMOS TODO EN EL ARCHIVO
 				fprintf(fcertificado, "========== CERTIFICADO DE INSCRIPCION ==========\n\n");
 				fprintf(fcertificado, "Nombre del usuario: %s\n", nombre);
 				fprintf(fcertificado, "DNI: %s\n", dni);
@@ -541,7 +560,7 @@ int main() {
 				poner_guiones(registros[indice].actividad_base); // LOS VOLVEMOS A PONER PARA NO MODIFICAR LA LISTA ORIGINAL
 				poner_guiones(registros[indice].centro);
 				
-				fclose(fcertificado);
+				fclose(fcertificado); // CERRAMOS EL ARCHIVO
 			
 			    printf("Certificado generado correctamente.\n");
 			    printf("Archivo creado en su carperta y titulado: certificado_inscripcion.txt\n");
@@ -558,8 +577,8 @@ int main() {
 				
 				printf("\n--- BUSCADOR DE ACTIVIDADES POR DIA ---\n");
 
-				do 
-				{
+				do // BUCLE PARA VERIFICAR LAS CONDICIONES
+				{ 
 					printf("Quieres ver la lista de deportes disponibles primero? (S/N):\n");
 					scanf("%s", respuesta);
 					ver_deportes = respuesta[0];
@@ -570,7 +589,7 @@ int main() {
 					}
 				} while (ver_deportes != 'S' && ver_deportes != 'N');
 				
-				if (ver_deportes == 'S') 
+				if (ver_deportes == 'S') // IMPRIMIMOS LA LISTA DE DEPORTES PARA MAYOR FACILIDAD AL USUARIO
 				{
 					ImprimirDeportes(registros, nregistros);
 					printf("\n");
@@ -601,7 +620,7 @@ int main() {
 				{
 					if (comparar(registros[i].actividad_base, act_buscado) == 1)
 					{
-						if (comparar(registros[i].dia_semana, dia_buscado) == 1 || comparar(dia_buscado, "TODOS") == 1) // CONDICIÓN  El día debe coincidir o el usuario ha escrito "TODO" (Caracteres constantes)
+						if (comparar(registros[i].dia_semana, dia_buscado) == 1 || comparar(dia_buscado, "TODOS") == 1) // CONDICIÃ“N  El dÃ­a debe coincidir o el usuario ha escrito "TODO" (Caracteres constantes)
 						{
 			
 							if (registros[i].libres > 0)
@@ -629,7 +648,7 @@ int main() {
 			
 			case 12: 
 			{
-			    SistemaRecomendacion(registros, nregistros);
+			    SistemaRecomendacion(registros, nregistros); // FUNCION EXCLUSIVA PARA EL CASO 12
 				break;
 			}
 			case 13:
@@ -642,19 +661,18 @@ int main() {
 
 			    printf("\n--- HISTOGRAMA DE OCUPACION ---\n");
 			    
-			    do {
+			    do 
+				{
 			        printf("Cuantos centros quieres comparar en el grafico (1 a 10)?: ");
 			        scanf("%d", &num_centros);
-					/* if (scanf("%d", &num_centros) != 1) 
-					{
-			            while (getchar() != '\n'); // Limpiamos si mete letras
-			            num_centros = 0;
-			        }*/
+			        
 			        if (num_centros < 1 || num_centros > 10) printf("Eleccion incorrecta o fuera de rango. Elija del 1 al 10.");
-			    } while (num_centros < 1 || num_centros > 10);
+			    
+				} while (num_centros < 1 || num_centros > 10);
 				
 				do 
 				{
+					// DE MANERA PARECIDA VOLVEMOS A IMPRIMIR LA LUSTA DE CENTROS PARA QUE LE RESULTE MAS FACIL AL USUARIO
 					printf("Quieres ver la lista de centros disponibles primero? (S/N):\n");
 					scanf("%s", respuesta);
 					ver_centros = respuesta[0];
@@ -678,7 +696,7 @@ int main() {
 			    }
 				printf("\n\n");
 				
-				// Realizamos el estilo del gráfico
+				// Realizamos el estilo del grÃ¡fico
 			    printf("Generando grafico...\n");
 			    printf("%-28s | %-50s | %s\n", "CENTRO DEPORTIVO", "0%                      50%                    100%", "OCUP.");
 			    printf("--------------------------------------------------------------------------------------------------\n");
@@ -722,7 +740,7 @@ int main() {
 			        } 
 					else 
 					{
-			            // Si el usuario se inventó el nombre
+			            // Si el usuario se inventÃ³ el nombre
 			            for (i = 0; i<num_centros; i++)
 			            {
 							sustituir_guiones(centros_elegidos[i]); // No me hace falta poner guiones ya que el centro no esta en la lista
@@ -740,10 +758,10 @@ int main() {
   				printf("\n==========================================================\n");
  				printf("          SISTEMA DE AYUDA Y ASISTENCIA AL USUARIO         \n");
  				printf("==========================================================\n");
-  				printf("Hola, ¿en que podemos ayudarte hoy?\n");
+  				printf("Hola, Â¿en que podemos ayudarte hoy?\n");
  				printf("1. No encuentro mi centro deportivo.\n");
-   				printf("2. ¿Como genero un certificado oficial?\n");
-    			printf("3. ¿Que es una 'Actividad Fantasma'?\n");
+   				printf("2. Â¿Como genero un certificado oficial?\n");
+    			printf("3. Â¿Que es una 'Actividad Fantasma'?\n");
     			printf("4. No entiendo como funciona el histograma.\n");
     			printf("5. Otros problemas.\n");
     			printf("Introduce tu duda (1-4): ");
@@ -823,7 +841,7 @@ int comparar(const char lista1[], const char lista2[]) // Funcion que compara la
 {
     int k = 0;
     
-    while (lista1[k] != '\0' || lista2[k] != '\0') // Comprueba caracter por caracter hasta que se encuentra un espacio. (También se incluyen las '_' que son separaciones dentro de una misma cadena)
+    while (lista1[k] != '\0' || lista2[k] != '\0') // Comprueba caracter por caracter hasta que se encuentra un espacio. (TambiÃ©n se incluyen las '_' que son separaciones dentro de una misma cadena)
 	{
         if (lista1[k] != lista2[k]) 
 		{
@@ -966,7 +984,7 @@ void SistemaRecomendacion(struct Actividad registros[], int nregistros)
 }
 
 
-int SoloLetras(char cadena[]) // Función que comprueba si una cadena tiene solo letras y espacios
+int SoloLetras(char cadena[]) // FunciÃ³n que comprueba si una cadena tiene solo letras y espacios
 {
     int i = 0;
     if (cadena[0] == '\0') return 0; // Si el usuario no escribe nada, da error
@@ -976,9 +994,9 @@ int SoloLetras(char cadena[]) // Función que comprueba si una cadena tiene solo 
         char c = cadena[i];
         
         
-        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ' || c=='_')) // Verificamos si NO es una letra mayúscula, NI minúscula, NI un espacio
+        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ' || c=='_')) // Verificamos si NO es una letra mayÃºscula, NI minÃºscula, NI un espacio
 		{
-            return 0; // Hemos encontrado un número o símbolo -> ERROR
+            return 0; // Hemos encontrado un nÃºmero o sÃ­mbolo -> ERROR
         }
         i++;
     }
